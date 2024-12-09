@@ -62,6 +62,8 @@ sarima_model <- Arima(train_data, order = c(1, 1, 0), seasonal = list(order = c(
 # Forecast the test data using the SARIMA model
 sarima_forecast <- forecast(sarima_model, h = length(test_data))
 
+print(sarima_model)
+
 # Plot the forecasted values along with the test data for comparison using ggplot2
 
 sarima_forecast_df <- data.frame(
@@ -86,3 +88,8 @@ ggsave("sarima_forecast.png", plt, height = 6, units = "in", dpi = 600)
 # Calculate the RMSE of the SARIMA model
 sarima_rmse <- sqrt(mean((sarima_forecast$mean - test_data)^2))
 sarima_rmse
+
+# Ljung-Box test
+sarima_ljung_box <- Box.test(sarima_model$residuals, lag = 6, type = "Ljung-Box")
+
+print(sarima_ljung_box)

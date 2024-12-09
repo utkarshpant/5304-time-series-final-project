@@ -1,4 +1,3 @@
-# Load necessary libraries
 library(tidyverse)
 library(forecast)
 library(tseries)
@@ -6,14 +5,14 @@ library(ggplot2)
 library(GGally)
 library(tidyverse)
 
-# set wd to current directory
+# set wd to current directory; please set this to the current directory if needed
 setwd("C:\\Users\\utkar\\Desktop\\attention-spans-research\\notebooks")
 
-# 1. Load the dataset
-data <- read_csv("./weekly_time_series.csv") # Update the path if needed
+# load the previously saved dataset; the github repo will ahve the dataset in the same directory
+data <- read_csv("./weekly_time_series.csv")
 head(data)
 
-# 2. Visualize the avg_comment_length weekly time series data
+# 2. visualize the avg_comment_length weekly time series data
 data <- data %>%
   mutate(week = as.Date(week)) # Ensure week column is in Date format
 
@@ -23,28 +22,28 @@ ggplot(data, aes(x = seq_along(avg_comment_length), y = avg_comment_length)) +
     theme(aspect.ratio = 9/16) +
     theme(plot.margin = unit(c(1, 1, 1, 1), "in"), plot.background = element_rect(size = 6))
 
-# 3. Perform differencing twice to remove the trend and visualize the differenced data
+# perform differencing twice to remove the trend and visualize the differenced data
 data_ts <- ts(data$avg_comment_length, frequency = 52) # Assuming weekly data with seasonality of 52
 diff_data <- diff(data_ts, differences = 2)
 
 plot(diff_data, type = "l", main = "Twice Differenced Data", xlab = "Time", ylab = "Differenced Values")
 
-# 4. Perform 1 round of seasonal differencing and visualize this differenced data
+# perform seasonal differencing once and visualize this differenced data
 seasonal_diff_data <- diff(diff_data, lag = 52)
 
 plot(seasonal_diff_data, type = "l", main = "Seasonally Differenced Data", xlab = "Time", ylab = "Differenced Values")
 
-# 5. Visualize the ACF and PACF of the cleaned time series
-par(mfrow = c(1, 2)) # Plot side-by-side
+# visualize the ACF and PACF of the cleaned time series
+par(mfrow = c(2, 1))
 acf(seasonal_diff_data, main = "ACF of Cleaned Data")
 pacf(seasonal_diff_data, main = "PACF of Cleaned Data")
 
-# 6. Run an ADF test on the cleaned data for stationarity
+# run an ADF test on the cleaned data for stationarity
 adf_test <- adf.test(seasonal_diff_data, alternative = "stationary")
 print(adf_test)
 
 # split data_ts into train and test
-# 90% train data and 10% test data
+# approximately 80% train data and 20% test data
 
 # Training data: Up to the end of Year 6
 train_data <- window(data_ts, end = c(5, 52))
@@ -53,6 +52,7 @@ train_data <- window(data_ts, end = c(5, 52))
 test_data <- window(data_ts, start = c(6, 1))
 
 # Display the train and test datasets
+# train data length
 train_data
 test_data
 

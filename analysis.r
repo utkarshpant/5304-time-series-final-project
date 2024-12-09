@@ -1,8 +1,10 @@
 # Load necessary libraries
 library(tidyverse)
-library(tsibble)
 library(forecast)
 library(tseries)
+library(ggplot2)
+library(GGally)
+library(tidyverse)
 
 # set wd to current directory
 setwd("C:\\Users\\utkar\\Desktop\\attention-spans-research\\notebooks")
@@ -70,12 +72,16 @@ sarima_forecast_df <- data.frame(
   actual = test_data
 )
 
-ggplot(sarima_forecast_df, aes(x = seq_along(avg_comment_length))) +
-  geom_line(aes(y = avg_comment_length), color = "red", size=0.8) +
-  geom_line(aes(y = actual), color = "black", size=0.8) +
-  labs(title = "SARIMA Forecast vs Actual", x = "Week", y = "Average Comment Length", color="Lengend") +
-  theme(aspect.ratio = 9/16) +
-  theme(plot.margin = unit(c(1, 1, 1, 1), "in"), plot.background = element_rect(size = 6))
+plt <- ggplot(sarima_forecast_df, aes(x = seq_along(avg_comment_length)), dpi=600) +
+    geom_line(aes(y = avg_comment_length, color = "Forecast"), size = 0.5) +
+    geom_line(aes(y = actual, color = "Actual"), size = 0.5) +
+    labs(title = "SARIMA Forecast vs Actual", x = "Week", y = "Average Comment Length") +
+    theme(aspect.ratio = 9/16) +
+    theme(plot.margin = unit(c(1, 1, 1, 1), "cm"), plot.background = element_rect(size = 6)) +
+    theme(legend.position = "right") +
+    scale_color_manual(values = c("Forecast" = "red", "Actual" = "black"), name = "Legend")
+
+ggsave("sarima_forecast.png", plt, height = 6, units = "in", dpi = 600)
 
 # Calculate the RMSE of the SARIMA model
 sarima_rmse <- sqrt(mean((sarima_forecast$mean - test_data)^2))
